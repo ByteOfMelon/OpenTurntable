@@ -202,6 +202,11 @@ func (a *App) GetPlaylistWithSongs(playlist_id int64) (*database.PlaylistWithSon
 	return a.db.GetPlaylistWithSongs(playlist_id)
 }
 
+// Binding to call AddSongsToPlaylist in db
+func (a *App) AddSongsToPlaylist(playlistID int64, songIDs []int64) error {
+	return a.db.AddSongsToPlaylist(playlistID, songIDs)
+}
+
 // Inserts all songs in directory (recursive) from user provided directory
 func (a *App) ImportSongsFromDirectory() (string, error) {
 	// Have user choose directory
@@ -340,6 +345,13 @@ func (a *App) CreateSongFromFilePath(filePath string) (int64, error) {
 		Genre:     sql.NullString{String: metadata["genre"], Valid: metadata["genre"] != ""},
 		Year:      sql.NullString{String: metadata["year"], Valid: metadata["year"] != ""},
 	}
+
+	// Parse duration
+	var duration float64
+	if durStr, ok := metadata["duration"]; ok {
+		fmt.Sscanf(durStr, "%f", &duration)
+	}
+	song.Duration = duration
 
 	// Set artist ID if valid
 	if artist.ID != 0 {

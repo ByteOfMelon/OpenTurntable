@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ChooseAndCreateSong, GetSongs, ImportSongsFromDirectory, GetSongsWithDetails, GetPlaylistWithSongs, GetPlaylists, CreatePlaylist } from "~/wailsjs/go/main/App";
+import { ChooseAndCreateSong, GetSongs, ImportSongsFromDirectory, GetSongsWithDetails, GetPlaylistWithSongs, GetPlaylists, CreatePlaylist, AddSongsToPlaylist } from "~/wailsjs/go/main/App";
 import { database } from '~/wailsjs/go/models';
 
 export const usePlaylistsStore = defineStore("playlists", {
@@ -10,9 +10,11 @@ export const usePlaylistsStore = defineStore("playlists", {
     actions: {
         async loadPlaylists() {
             try {
-                this.playlists = await GetPlaylists();
+                const playlists = await GetPlaylists();
+                this.playlists = playlists || [];
             } catch (err) {
                 console.error(err);
+                this.playlists = [];
             }
         },
 
@@ -41,5 +43,17 @@ export const usePlaylistsStore = defineStore("playlists", {
                 console.error(err);
             }
         },
+
+        async addSongsToPlaylist(playlistID: number, songIDs: number[]) {
+            try {
+                await AddSongsToPlaylist(playlistID, songIDs);
+                // Refresh current playlist if it's the one we modified
+                if (this.currentPlaylist && this.currentPlaylist.Playlist.ID === playlistID) {
+                    await this.getPlaylist(playlistID);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
     }
 })

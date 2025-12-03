@@ -28,6 +28,7 @@ export namespace database {
 	    Comment: sql.NullString;
 	    Genre: sql.NullString;
 	    Year: sql.NullString;
+	    Duration: number;
 	    ArtistName: sql.NullString;
 	    ArtistPFP: sql.NullString;
 	    AlbumName: sql.NullString;
@@ -48,6 +49,7 @@ export namespace database {
 	        this.Comment = this.convertValues(source["Comment"], sql.NullString);
 	        this.Genre = this.convertValues(source["Genre"], sql.NullString);
 	        this.Year = this.convertValues(source["Year"], sql.NullString);
+	        this.Duration = source["Duration"];
 	        this.ArtistName = this.convertValues(source["ArtistName"], sql.NullString);
 	        this.ArtistPFP = this.convertValues(source["ArtistPFP"], sql.NullString);
 	        this.AlbumName = this.convertValues(source["AlbumName"], sql.NullString);
@@ -150,6 +152,7 @@ export namespace database {
 	    Comment: sql.NullString;
 	    Genre: sql.NullString;
 	    Year: sql.NullString;
+	    Duration: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new Song(source);
@@ -166,6 +169,7 @@ export namespace database {
 	        this.Comment = this.convertValues(source["Comment"], sql.NullString);
 	        this.Genre = this.convertValues(source["Genre"], sql.NullString);
 	        this.Year = this.convertValues(source["Year"], sql.NullString);
+	        this.Duration = source["Duration"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

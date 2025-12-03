@@ -36,13 +36,13 @@
                 <span>{{ playback.duration ? SecondsToDuration(playback.duration) : "0:00" }}</span>
             </div>
             <div class="flex items-center space-x-6">
-                <fa icon="shuffle" :class="playback.shuffle ? 'text-blue-600 cursor-pointer text-xl' : 'text-[#bbb] cursor-pointer text-xl'" @click="playback.toggleShuffle()"></fa>
+                <fa icon="shuffle" :class="playback.shuffle ? 'text-primary cursor-pointer text-xl' : 'text-[#bbb] cursor-pointer text-xl'" @click="playback.toggleShuffle()"></fa>
                 <fa icon="backward-step" class="text-[#bbb] cursor-pointer text-xl" @click="playback.queueStep(false, true)"></fa>
                 <fa :icon="playback.playing ? 'circle-pause' : 'circle-play'" class="text-white cursor-pointer text-3xl" @click="playback.togglePlayback()"></fa>
                 <fa icon="forward-step" class="text-[#bbb] cursor-pointer text-xl" @click="playback.queueStep(true, true)"></fa>
                 <div class="relative inline-block">
-                    <fa icon="repeat" :class="playback.repeat === RepeatType.Off ? 'text-[#bbb] cursor-pointer text-xl' : 'text-blue-600 cursor-pointer text-xl'" @click="playback.cycleRepeat()"></fa>
-                    <span v-if="playback.repeat === RepeatType.RepeatOne" class="absolute -top-1 -right-2 bg-blue-600 text-white text-xs font-bold w-4 h-4 flex items-center justify-center rounded-full">1</span>
+                    <fa icon="repeat" :class="playback.repeat === RepeatType.Off ? 'text-[#bbb] cursor-pointer text-xl' : 'text-primary cursor-pointer text-xl'" @click="playback.cycleRepeat()"></fa>
+                    <span v-if="playback.repeat === RepeatType.RepeatOne" class="absolute -top-1 -right-2 bg-primary text-white text-xs font-bold w-4 h-4 flex items-center justify-center rounded-full">1</span>
                 </div>
             </div>
         </div>

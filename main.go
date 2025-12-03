@@ -71,7 +71,7 @@ func main() {
 			WindowIsTranslucent:  true,
 			About: &mac.AboutInfo{
 				Title:   "OpenTurntable",
-				Message: "A (hopefully good) OSS music player. Made by TheRandomMelon on GitHub",
+				Message: "A (hopefully good) OSS music player. Made by ByteOfMelon on GitHub",
 				Icon:    icon,
 			},
 		},

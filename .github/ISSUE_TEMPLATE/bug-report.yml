@@ -8,7 +8,7 @@ body:
         Thank you for taking the time to report this bug!
 
         Please review currently open issues first to ensure that this bug hasn't been reported yet:
-        https://github.com/TheRandomMelon/OpenTurntable/issues
+        https://github.com/ByteOfMelon/OpenTurntable/issues
   - type: textarea
     id: bug-env
     attributes:

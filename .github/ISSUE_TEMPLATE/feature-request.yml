@@ -8,7 +8,7 @@ body:
         Thank you for taking the time to make this feature request!
 
         Please review currently open issues first to ensure that this feature hasn't been suggested yet:
-        https://github.com/TheRandomMelon/OpenTurntable/issues
+        https://github.com/ByteOfMelon/OpenTurntable/issues
   - type: textarea
     id: feature-description
     attributes:
@@ -25,5 +25,5 @@ body:
       options:
         - label: Would you be willing to help implement this feature?
           required: false
-        - label: Did you check existing [issues](https://github.com/TheRandomMelon/OpenTurntable/issues) to see if this feature has already been implemented?
+        - label: Did you check existing [issues](https://github.com/ByteOfMelon/OpenTurntable/issues) to see if this feature has already been implemented?
           required: true

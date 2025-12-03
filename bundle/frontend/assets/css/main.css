@@ -1,9 +1,17 @@
 @import "tailwindcss";
 
+@theme {
+    --color-primary: #AF1A3A;
+    --color-secondary: #480A17;
+}
+
 :root {
     --background: #151515;
     --component: #252525;
     --foreground: white;
+
+    --primary: #AF1A3A;
+    --secondary: #480A17;
 }
 
 html {

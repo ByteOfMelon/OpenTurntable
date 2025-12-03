@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { GetDuration, GetPosition, PauseMusic, StopPlayback, SetVolume, GetFilePath, GetMetadata, IsPlaying, Seek, PlayFile, SetSpeed, RecallBackupVariables } from "~/wailsjs/go/main/App";
 import { database } from '~/wailsjs/go/models';
+import { usePlaylistsStore } from "./playlists.stores";
 
 export enum PlaybackSourceType {
     Library,
@@ -44,15 +45,17 @@ export const usePlaybackStore = defineStore("playback", {
                         if (!songs.songs) await songs.getAllSongs();
 
                         // Find position in library
-                        let pos = songs.songs?.findIndex((s) => s.ID === song.ID)
+                        let pos = songs.songs?.findIndex((s) => s.ID === song.ID);
+                        if (pos === undefined || pos === -1) pos = 0;
 
                         // Get new queue
-                        this.queue = songs.getQueue<database.SongWithDetails>(songs.songs ? songs.songs : [], pos ? pos : song.ID, false);
+                        // getQueue expects 1-based index
+                        this.queue = songs.getQueue<database.SongWithDetails>(songs.songs ? songs.songs : [], pos + 1, false);
                         this.unshuffledQueue = this.queue;
                         this.currentSong = song;
 
                         if (this.shuffle) {
-                            this.queue = songs.getQueue<database.SongWithDetails>(songs.songs ? songs.songs : [], pos ? pos : song.ID, true);
+                            this.queue = songs.getQueue<database.SongWithDetails>(songs.songs ? songs.songs : [], pos + 1, true);
                         }
 
                         console.log(this.queue);
@@ -68,7 +71,37 @@ export const usePlaybackStore = defineStore("playback", {
                         await this.playFile(song);
                         break;
                     case PlaybackSourceType.Playlist:
-                        // TODO
+                        const playlistStore = usePlaylistsStore();
+                        if (!playlistStore.currentPlaylist) return;
+
+                        // Map playlist entries to SongWithDetails
+                        const playlistSongs = playlistStore.currentPlaylist.Entries.map(entry => entry.Song);
+
+                        // Find position in playlist
+                        let playlistPos = playlistSongs.findIndex((s) => s.ID === song.ID);
+                        if (playlistPos === undefined || playlistPos === -1) playlistPos = 0;
+
+                        // Get new queue
+                        this.queue = songs.getQueue<database.SongWithDetails>(playlistSongs, playlistPos + 1, false);
+                        this.unshuffledQueue = this.queue;
+                        this.currentSong = song;
+
+                        if (this.shuffle) {
+                            this.queue = songs.getQueue<database.SongWithDetails>(playlistSongs, playlistPos + 1, true);
+                        }
+
+                        this.source = {
+                            type: PlaybackSourceType.Playlist,
+                            id: playlistStore.currentPlaylist.Playlist.ID
+                        };
+
+                        EventsEmit('updateBackupVariables', {
+                            queue: this.queue,
+                            unshuffledQueue: this.unshuffledQueue,
+                            currentSong: this.currentSong
+                        })
+
+                        await this.playFile(song);
                         break;
                     default:
                         throw new Error("Unsupported playback source type");

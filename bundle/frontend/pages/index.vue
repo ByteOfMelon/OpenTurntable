@@ -3,71 +3,77 @@
         <ImportDialog v-if="songs.importing" :currentlyImporting="state.currentlyImporting" />
         <div class="p-4 h-full flex flex-col gap-4">
             <div class="flex space-x-2">
-                <button @click="songs.chooseSong" class="px-3 py-2 rounded bg-gray-800 cursor-pointer">
+                <button @click="songs.chooseSong" class="px-6 py-3 bg-primary text-white shadow-md font-bold rounded-full cursor-pointer">
                     <fa icon="square-plus" class="mr-1"></fa> {{ $t("library.add_song") }}
                 </button>
-                <button @click="songs.importSongsFromDirectory" class="px-3 py-2 rounded bg-gray-800 cursor-pointer">
+                <button @click="songs.importSongsFromDirectory" class="px-6 py-3 bg-primary text-white shadow-md font-bold rounded-full cursor-pointer">
                     <fa icon="folder-plus" class="mr-1"></fa> {{ $t("library.import_songs") }}
                 </button>
             </div>
             <div class="flex-1 overflow-auto" v-if="!state.isLoading && songs.songs !== null && !songs.importing">
-                <table class="w-full">
+                <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr>
-                            <th class="cursor-pointer" @click="rearrangeSongs('id')">
+                        <tr class="text-gray-400 border-b border-gray-800 text-sm uppercase">
+                            <th class="pb-2 w-12 cursor-pointer" @click="rearrangeSongs('id')">
                                 <div class="flex flex-row items-center space-x-2">
                                     <span>#</span>
                                     <SortIcon :ascending="songs.arrangement.asc" v-if="songs.arrangement.key === 'id'" />
                                 </div>
                             </th>
-                            <th class="cursor-pointer" @click="rearrangeSongs(state.sortTitle ? 'title' : 'artist')">
+                            <th class="pb-2 cursor-pointer" @click="rearrangeSongs('title')">
                                 <div class="flex flex-row items-center space-x-2">
-                                    <span>{{ songs.arrangement.key === 'artist' ? $t('general.artist') : $t('general.title')  }}</span>
-                                    <SortIcon :ascending="songs.arrangement.asc" v-if="songs.arrangement.key === 'title' || songs.arrangement.key === 'artist'" />
+                                    <span>{{ $t('general.title') }}</span>
+                                    <SortIcon :ascending="songs.arrangement.asc" v-if="songs.arrangement.key === 'title'" />
                                 </div>
                             </th>
-                            <th class="cursor-pointer" @click="rearrangeSongs('album')">
+                            <th class="pb-2 cursor-pointer" @click="rearrangeSongs('artist')">
+                                <div class="flex flex-row items-center space-x-2">
+                                    <span>{{ $t('general.artist') }}</span>
+                                    <SortIcon :ascending="songs.arrangement.asc" v-if="songs.arrangement.key === 'artist'" />
+                                </div>
+                            </th>
+                            <th class="pb-2 cursor-pointer" @click="rearrangeSongs('album')">
                                 <div class="flex flex-row items-center space-x-2">
                                     <span>{{ $t('general.album') }}</span>
                                     <SortIcon :ascending="songs.arrangement.asc" v-if="songs.arrangement.key === 'album'" />
                                 </div>
                             </th>
-                            <th class="cursor-pointer" @click="rearrangeSongs('genre')">
+                            <th class="pb-2 cursor-pointer" @click="rearrangeSongs('genre')">
                                 <div class="flex flex-row items-center space-x-2">
                                     <span>{{ $t('general.genre') }}</span>
                                     <SortIcon :ascending="songs.arrangement.asc" v-if="songs.arrangement.key === 'genre'" />
                                 </div>
                             </th>
-                            <th class="cursor-pointer" @click="rearrangeSongs('year')">
+                            <th class="pb-2 cursor-pointer" @click="rearrangeSongs('year')">
                                 <div class="flex flex-row items-center space-x-2">
                                     <span>{{ $t('general.year') }}</span>
                                     <SortIcon :ascending="songs.arrangement.asc" v-if="songs.arrangement.key === 'year'" />
                                 </div>
                             </th>
+                            <th class="pb-2 w-16"><fa icon="clock" /></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="song in songs.songs">
-                            <td class="play-btn">
+                        <tr v-for="song in songs.songs" :key="song.ID" class="group hover:bg-secondary rounded-md">
+                            <td class="py-3 pl-2 text-gray-400 group-hover:text-white play-btn">
                                 <span class="id-label">{{ song.ID }}</span>
                                 <div class="play-button-icon">
                                     <fa icon="circle-play" class="text-white cursor-pointer text-xl" @click="playback.beginPlayback(song, PlaybackSourceType.Library)"></fa>
                                 </div>
                             </td>
-                            <td>
+                            <td class="py-3 text-white font-medium">
                                 <div class="flex flex-row space-x-3 items-center">
-                                    <div class="w-[42px] min-w-[42px]">
-                                        <img class="w-[42px] shadow rounded" draggable="false" :src="song.AlbumArt.String ? song.AlbumArt.String : defaultArtwork" />
+                                    <div class="w-[32px] min-w-[32px]">
+                                        <img class="w-[32px] shadow rounded" draggable="false" :src="song.AlbumArt.String ? song.AlbumArt.String : defaultArtwork" />
                                     </div>
-                                    <div class="flex flex-col">
-                                        <b>{{ song.Title }}</b>
-                                        <span>{{ song.ArtistName.String }}</span>
-                                    </div>
+                                    <span>{{ song.Title }}</span>
                                 </div>
                             </td>
-                            <td>{{ song.AlbumName.String }}</td>
-                            <td>{{ song.Genre.String }}</td>
-                            <td>{{ song.Year.String == "0" ? "" : song.Year.String }}</td>
+                            <td class="py-3 text-gray-400 group-hover:text-white">{{ song.ArtistName.String }}</td>
+                            <td class="py-3 text-gray-400 group-hover:text-white">{{ song.AlbumName.String }}</td>
+                            <td class="py-3 text-gray-400 group-hover:text-white">{{ song.Genre.String }}</td>
+                            <td class="py-3 text-gray-400 group-hover:text-white">{{ song.Year.String == "0" ? "" : song.Year.String }}</td>
+                            <td class="py-3 text-gray-400">{{ SecondsToDuration(song.Duration) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -87,21 +93,23 @@ table th {
     position: sticky;
     top: 0;
     background: var(--component);
+    z-index: 10;
 }
 
-td .play-button-icon {
+.play-button-icon {
     display: none;
 }
 
-td:hover .play-button-icon {
-    display: initial;
+.id-label {
+    display: block;
 }
 
-td .id-label {
-    display: initial;
+/* Show play button and hide ID when hovering the row */
+.group:hover .play-button-icon {
+    display: block;
 }
 
-td:hover .id-label {
+.group:hover .id-label {
     display: none;
 }
 </style>
@@ -112,6 +120,7 @@ td:hover .id-label {
     import defaultArtwork from '@/assets/img/default_artwork.png';
     import { PlaybackSourceType } from '~/stores/playback.stores';
     import ImportDialog from '~/components/ImportDialog.vue';
+    import { SecondsToDuration } from '~/utils/format';
 
     const playback = usePlaybackStore();
     const songs = useSongsStore();

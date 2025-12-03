@@ -19,17 +19,22 @@ import (
 )
 
 type Player struct {
-	ctrl      *beep.Ctrl
-	volume    *effects.Volume
-	resampler *beep.Resampler
-	filePath  string
-	format    beep.Format
-	metadata  map[string]string
-	streamer  beep.StreamSeekCloser
+	ctrl       *beep.Ctrl
+	volume     *effects.Volume
+	resampler  *beep.Resampler
+	filePath   string
+	format     beep.Format
+	metadata   map[string]string
+	streamer   beep.StreamSeekCloser
+	sampleRate beep.SampleRate
 }
 
 func NewPlayer() *Player {
-	return &Player{}
+	sr := beep.SampleRate(44100)
+	speaker.Init(sr, sr.N(time.Second/10))
+	return &Player{
+		sampleRate: sr,
+	}
 }
 
 func (p *Player) Play(filePath string, speed float64) error {
@@ -93,10 +98,12 @@ func (p *Player) Play(filePath string, speed float64) error {
 	p.filePath = filePath
 
 	if speed == 0 {
-		p.resampler = beep.ResampleRatio(4, 1.0, p.ctrl)
-	} else {
-		p.resampler = beep.ResampleRatio(4, speed, p.ctrl)
+		speed = 1.0
 	}
+
+	// Calculate ratio to match speaker sample rate and apply speed
+	ratio := float64(format.SampleRate) / float64(p.sampleRate) * speed
+	p.resampler = beep.ResampleRatio(4, ratio, p.ctrl)
 
 	p.volume = &effects.Volume{
 		Streamer: p.resampler,
@@ -105,7 +112,6 @@ func (p *Player) Play(filePath string, speed float64) error {
 		Silent:   false,
 	}
 
-	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
 	speaker.Play(p.volume)
 
 	return nil
@@ -124,7 +130,8 @@ func (p *Player) IsPlaying() bool {
 func (p *Player) SetSpeed(speed float64) {
 	if p.resampler != nil {
 		speaker.Lock()
-		p.resampler.SetRatio(speed)
+		ratio := float64(p.format.SampleRate) / float64(p.sampleRate) * speed
+		p.resampler.SetRatio(ratio)
 		speaker.Unlock()
 	}
 }

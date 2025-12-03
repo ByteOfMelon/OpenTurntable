@@ -5,7 +5,8 @@
         "no_songs": "You don't currently have any songs in your library. Import some using the buttons above.",
         "importing_songs": "Importing songs...",
         "currently_working": "Currently working on:",
-        "loading": "Loading library..."
+        "loading": "Loading library...",
+        "no_songs_found": "No songs found."
     },
     "general": {
         "artist": "Artist",
@@ -23,7 +24,11 @@
         "not_specified": "Not Specified",
         "no_comment": "No Comment",
         "name": "Name",
-        "description": "Description"
+        "description": "Description",
+        "play": "Play",
+        "search_placeholder": "Search songs...",
+        "cancel": "Cancel",
+        "error_generic": "This should not occur. Please report this bug."
     },
     "defaults": {
         "title": "Unknown Title",
@@ -38,6 +43,14 @@
     },
     "playlists": {
         "playlist": "Playlist | Playlists",
-        "new": "Create New Playlist"
+        "new": "Create New Playlist",
+        "no_playlists": "No playlists",
+        "no_description": "No description added.",
+        "add_songs": "Add Songs",
+        "empty": "This playlist is empty. Add some songs!",
+        "select_playlist": "Select a playlist to view details",
+        "add_songs_title": "Add Songs to Playlist",
+        "add_n_songs": "Add {n} Songs",
+        "error_name_required": "Please specify a playlist name."
     }
 }

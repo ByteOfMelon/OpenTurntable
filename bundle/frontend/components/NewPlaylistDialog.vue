@@ -21,7 +21,7 @@
                     </div>
                 </div>
                 <div class="mt-6">
-                    <button @click="createPlaylist()" class="px-3 py-2 rounded bg-gray-700 disabled:opacity-50 cursor-pointer" :disabled="state.buttonDisabled">
+                    <button @click="createPlaylist()" class="px-6 py-3 rounded-full bg-primary disabled:opacity-50 cursor-pointer transition-all" :disabled="state.buttonDisabled">
                         <fa icon="square-plus" class="mr-1"></fa> {{ $t("playlists.new") }}
                     </button>
                 </div>
@@ -42,6 +42,7 @@
 <script setup>
 const emit = defineEmits(['close']);
 const playlist = usePlaylistsStore();
+const { t } = useI18n();
 
 const state = reactive({
     buttonDisabled: true,
@@ -64,7 +65,7 @@ const createPlaylist = async () => {
     state.error = "";
 
     if (!name.value || name.value == "" || name.value == null) {
-        state.error = "Please specify a playlist name.";
+        state.error = t('playlists.error_name_required');
         state.buttonDisabled = false;
         return;
     }
@@ -78,7 +79,7 @@ const createPlaylist = async () => {
         emit("close");
     } catch (err) {
         console.error(err);
-        state.error = "This should not occur. Please report this bug.";
+        state.error = t('general.error_generic');
     }
 }
 </script>

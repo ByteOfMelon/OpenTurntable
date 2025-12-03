@@ -25,6 +25,7 @@ type Song struct {
 	Comment   sql.NullString
 	Genre     sql.NullString
 	Year      sql.NullString
+	Duration  float64
 }
 
 // Represents an artist in the database
@@ -141,6 +142,7 @@ func NewDB() (*DB, error) {
 		comment TEXT,
 		genre TEXT,
 		year TEXT,
+		duration REAL,
 		FOREIGN KEY (artist_id) REFERENCES artists(id),
 		FOREIGN KEY (album_id) REFERENCES albums(id)
 	);
@@ -195,6 +197,16 @@ func NewDB() (*DB, error) {
 		return nil, fmt.Errorf("failed to create table: %w", err)
 	}
 
+	// Check if duration column exists in songs table
+	var count int
+	err = conn.QueryRow("SELECT count(*) FROM pragma_table_info('songs') WHERE name='duration'").Scan(&count)
+	if err == nil && count == 0 {
+		_, err = conn.Exec("ALTER TABLE songs ADD COLUMN duration REAL")
+		if err != nil {
+			fmt.Printf("Failed to add duration column: %v\n", err)
+		}
+	}
+
 	return &DB{conn: conn}, nil
 }
 
@@ -206,8 +218,8 @@ func (db *DB) Close() error {
 // Inserts a new song into the database
 func (db *DB) CreateSong(song Song) (int64, error) {
 	result, err := db.conn.Exec(
-		"INSERT INTO songs (path, title, artist_id, album_id, composer, comment, genre, year) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-		song.Path, song.Title, song.Artist_ID, song.Album_ID, song.Composer, song.Comment, song.Genre, song.Year,
+		"INSERT INTO songs (path, title, artist_id, album_id, composer, comment, genre, year, duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		song.Path, song.Title, song.Artist_ID, song.Album_ID, song.Composer, song.Comment, song.Genre, song.Year, song.Duration,
 	)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create song: %w", err)
@@ -301,12 +313,16 @@ func (db *DB) CreateAlbum(album Album) (int64, error) {
 // Retrieves song by ID
 func (db *DB) GetSongById(id int64) (Song, error) {
 	var song Song
-	err := db.conn.QueryRow("SELECT * FROM songs WHERE id = ?", id).Scan(&song.ID, &song.Path, &song.Title, &song.Album_ID, &song.Artist_ID, &song.Composer, &song.Comment, &song.Genre, &song.Year)
+	var duration sql.NullFloat64
+	err := db.conn.QueryRow("SELECT * FROM songs WHERE id = ?", id).Scan(&song.ID, &song.Path, &song.Title, &song.Artist_ID, &song.Album_ID, &song.Composer, &song.Comment, &song.Genre, &song.Year, &duration)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return Song{}, fmt.Errorf("song with ID %d not found", id)
 		}
 		return Song{}, err
+	}
+	if duration.Valid {
+		song.Duration = duration.Float64
 	}
 
 	return song, nil
@@ -315,12 +331,16 @@ func (db *DB) GetSongById(id int64) (Song, error) {
 // Retrieves a song by file path
 func (db *DB) GetSongByPath(path string) (Song, error) {
 	var song Song
-	err := db.conn.QueryRow("SELECT * FROM songs WHERE path = ?", path).Scan(&song.ID, &song.Path, &song.Title, &song.Album_ID, &song.Artist_ID, &song.Composer, &song.Comment, &song.Genre, &song.Year)
+	var duration sql.NullFloat64
+	err := db.conn.QueryRow("SELECT * FROM songs WHERE path = ?", path).Scan(&song.ID, &song.Path, &song.Title, &song.Artist_ID, &song.Album_ID, &song.Composer, &song.Comment, &song.Genre, &song.Year, &duration)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return Song{}, fmt.Errorf("song with path %s not found", path)
 		}
 		return Song{}, err
+	}
+	if duration.Valid {
+		song.Duration = duration.Float64
 	}
 
 	return song, nil
@@ -337,8 +357,12 @@ func (db *DB) GetSongs() ([]Song, error) {
 	var songs []Song
 	for rows.Next() {
 		var s Song
-		if err := rows.Scan(&s.ID, &s.Path, &s.Title, &s.Artist_ID, &s.Album_ID, &s.Composer, &s.Comment, &s.Genre, &s.Year); err != nil {
+		var duration sql.NullFloat64
+		if err := rows.Scan(&s.ID, &s.Path, &s.Title, &s.Artist_ID, &s.Album_ID, &s.Composer, &s.Comment, &s.Genre, &s.Year, &duration); err != nil {
 			return nil, fmt.Errorf("failed to scan song: %w", err)
+		}
+		if duration.Valid {
+			s.Duration = duration.Float64
 		}
 		songs = append(songs, s)
 	}
@@ -365,6 +389,7 @@ func (db *DB) GetSongsWithDetails() ([]SongWithDetails, error) {
             songs.comment,
             songs.genre,
             songs.year,
+            songs.duration,
             COALESCE(artists.name, '') AS artist_name,
             COALESCE(artists.pfp, '') AS artist_pfp,
             COALESCE(albums.name, '') AS album_name,
@@ -382,6 +407,7 @@ func (db *DB) GetSongsWithDetails() ([]SongWithDetails, error) {
 	var songs []SongWithDetails
 	for rows.Next() {
 		var s SongWithDetails
+		var duration sql.NullFloat64
 		err := rows.Scan(
 			&s.ID,
 			&s.Path,
@@ -392,6 +418,7 @@ func (db *DB) GetSongsWithDetails() ([]SongWithDetails, error) {
 			&s.Comment,
 			&s.Genre,
 			&s.Year,
+			&duration,
 			&s.ArtistName,
 			&s.ArtistPFP,
 			&s.AlbumName,
@@ -399,6 +426,9 @@ func (db *DB) GetSongsWithDetails() ([]SongWithDetails, error) {
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan song details: %w", err)
+		}
+		if duration.Valid {
+			s.Duration = duration.Float64
 		}
 		songs = append(songs, s)
 	}
@@ -455,6 +485,43 @@ func (db *DB) CreatePlaylistEntry(pe PlaylistEntry) (int64, error) {
 	return result.LastInsertId()
 }
 
+// Adds multiple songs to a playlist
+func (db *DB) AddSongsToPlaylist(playlistID int64, songIDs []int64) error {
+	tx, err := db.conn.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Get current max list_order
+	var maxOrder sql.NullInt64
+	err = tx.QueryRow("SELECT MAX(list_order) FROM playlist_entries WHERE playlist_id = ?", playlistID).Scan(&maxOrder)
+	if err != nil {
+		return err
+	}
+
+	currentOrder := int64(0)
+	if maxOrder.Valid {
+		currentOrder = maxOrder.Int64 + 1
+	}
+
+	stmt, err := tx.Prepare("INSERT INTO playlist_entries (playlist_id, song_id, list_order) VALUES (?, ?, ?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for _, songID := range songIDs {
+		_, err = stmt.Exec(playlistID, songID, currentOrder)
+		if err != nil {
+			return err
+		}
+		currentOrder++
+	}
+
+	return tx.Commit()
+}
+
 // Gets a playlist with all of its song entries
 func (db *DB) GetPlaylistWithSongs(playlistID int64) (*PlaylistWithSongs, error) {
 	var playlist Playlist
@@ -462,7 +529,7 @@ func (db *DB) GetPlaylistWithSongs(playlistID int64) (*PlaylistWithSongs, error)
 	// Fetch playlist metadata
 	err := db.conn.QueryRow(`
 		SELECT ID, Name, Description, Picture
-		FROM Playlists
+		FROM playlists
 		WHERE ID = ?`, playlistID).Scan(
 		&playlist.ID,
 		&playlist.Name,
@@ -476,20 +543,20 @@ func (db *DB) GetPlaylistWithSongs(playlistID int64) (*PlaylistWithSongs, error)
 	// Fetch playlist entries with detailed song info
 	rows, err := db.conn.Query(`
 		SELECT 
-			pe.ID, pe.Playlist_ID, pe.ListOrder,
+			pe.id, pe.playlist_id, pe.list_order,
 
-			s.ID, s.Path, s.Title, s.Artist_ID, s.Album_ID,
-			s.Composer, s.Comment, s.Genre, s.Year,
+			s.id, s.path, s.title, s.artist_id, s.album_id,
+			s.composer, s.comment, s.genre, s.year, s.duration,
 
-			ar.Name AS ArtistName, ar.PFP AS ArtistPFP,
-			al.Name AS AlbumName, al.Art AS AlbumArt
+			ar.name AS ArtistName, ar.pfp AS ArtistPFP,
+			al.name AS AlbumName, al.art AS AlbumArt
 
-		FROM PlaylistEntries pe
-		JOIN Songs s ON pe.Song_ID = s.ID
-		LEFT JOIN Artists ar ON s.Artist_ID = ar.ID
-		LEFT JOIN Albums al ON s.Album_ID = al.ID
-		WHERE pe.Playlist_ID = ?
-		ORDER BY pe.ListOrder
+		FROM playlist_entries pe
+		JOIN songs s ON pe.song_id = s.id
+		LEFT JOIN artists ar ON s.artist_id = ar.id
+		LEFT JOIN albums al ON s.album_id = al.id
+		WHERE pe.playlist_id = ?
+		ORDER BY pe.list_order
 	`, playlistID)
 	if err != nil {
 		return nil, err
@@ -500,6 +567,7 @@ func (db *DB) GetPlaylistWithSongs(playlistID int64) (*PlaylistWithSongs, error)
 	for rows.Next() {
 		var entry PlaylistEntryWithSong
 		var song SongWithDetails
+		var duration sql.NullFloat64
 
 		err := rows.Scan(
 			&entry.ID,
@@ -515,6 +583,7 @@ func (db *DB) GetPlaylistWithSongs(playlistID int64) (*PlaylistWithSongs, error)
 			&song.Comment,
 			&song.Genre,
 			&song.Year,
+			&duration,
 
 			&song.ArtistName,
 			&song.ArtistPFP,
@@ -523,6 +592,10 @@ func (db *DB) GetPlaylistWithSongs(playlistID int64) (*PlaylistWithSongs, error)
 		)
 		if err != nil {
 			return nil, err
+		}
+
+		if duration.Valid {
+			song.Duration = duration.Float64
 		}
 
 		entry.Song = song
