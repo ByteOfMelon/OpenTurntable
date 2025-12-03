@@ -18,10 +18,10 @@
 - Library system to store a collection of music
 - Shuffle, repeat/repeat one, previous/next
 - Now playing tab that shows you more info about your currently playing song, alongside the next song in your queue
+- Playlist system
 
 ### Planned
 - Allowing user to edit song metadata once imported (see issue [#9](https://github.com/ByteOfMelon/OpenTurntable/issues/9))
-- Playlist system (see issue [#2](https://github.com/ByteOfMelon/OpenTurntable/issues/2))
 - Last.fm scrobbling support (see issue [#4](https://github.com/ByteOfMelon/OpenTurntable/issues/4))
 - EQ (equalizer) (see issue [#5](https://github.com/ByteOfMelon/OpenTurntable/issues/5))
 
