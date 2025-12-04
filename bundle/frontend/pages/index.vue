@@ -50,7 +50,12 @@
                                     <SortIcon :ascending="songs.arrangement.asc" v-if="songs.arrangement.key === 'year'" />
                                 </div>
                             </th>
-                            <th class="pb-2 w-16"><fa icon="clock" /></th>
+                            <th class="pb-2 w-16 cursor-pointer" @click="rearrangeSongs('duration')">
+                                <div class="flex flex-row items-center space-x-2">
+                                    <fa icon="clock" />
+                                    <SortIcon :ascending="songs.arrangement.asc" v-if="songs.arrangement.key === 'duration'" />
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>

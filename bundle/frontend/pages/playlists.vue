@@ -63,11 +63,36 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="text-gray-400 border-b border-gray-800 text-sm uppercase">
-                                <th class="pb-2 w-12">#</th>
-                                <th class="pb-2">Title</th>
-                                <th class="pb-2">Artist</th>
-                                <th class="pb-2">Album</th>
-                                <th class="pb-2 w-16"><fa icon="clock" /></th>
+                                <th class="pb-2 w-12 cursor-pointer" @click="rearrangePlaylist('list_order')">
+                                    <div class="flex flex-row items-center space-x-2">
+                                        <span>#</span>
+                                        <SortIcon :ascending="playlistStore.arrangement.asc" v-if="playlistStore.arrangement.key === 'list_order'" />
+                                    </div>
+                                </th>
+                                <th class="pb-2 cursor-pointer" @click="rearrangePlaylist('title')">
+                                    <div class="flex flex-row items-center space-x-2">
+                                        <span>{{ $t('general.title') }}</span>
+                                        <SortIcon :ascending="playlistStore.arrangement.asc" v-if="playlistStore.arrangement.key === 'title'" />
+                                    </div>
+                                </th>
+                                <th class="pb-2 cursor-pointer" @click="rearrangePlaylist('artist')">
+                                    <div class="flex flex-row items-center space-x-2">
+                                        <span>{{ $t('general.artist') }}</span>
+                                        <SortIcon :ascending="playlistStore.arrangement.asc" v-if="playlistStore.arrangement.key === 'artist'" />
+                                    </div>
+                                </th>
+                                <th class="pb-2 cursor-pointer" @click="rearrangePlaylist('album')">
+                                    <div class="flex flex-row items-center space-x-2">
+                                        <span>{{ $t('general.album') }}</span>
+                                        <SortIcon :ascending="playlistStore.arrangement.asc" v-if="playlistStore.arrangement.key === 'album'" />
+                                    </div>
+                                </th>
+                                <th class="pb-2 w-16 cursor-pointer" @click="rearrangePlaylist('duration')">
+                                    <div class="flex flex-row items-center space-x-2">
+                                        <fa icon="clock" />
+                                        <SortIcon :ascending="playlistStore.arrangement.asc" v-if="playlistStore.arrangement.key === 'duration'" />
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -166,5 +191,9 @@
         if (selectedPlaylistId.value) {
             await playlistStore.getPlaylist(selectedPlaylistId.value);
         }
+    }
+
+    const rearrangePlaylist = async (by: string) => {
+        await playlistStore.rearrangePlaylist(by);
     }
 </script>

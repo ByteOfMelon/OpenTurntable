@@ -147,6 +147,14 @@ export const usePlaybackStore = defineStore("playback", {
 
                 await this.playFile(newSong);
             } else if (!forward && this.queue) {
+                if (userClick && this.currentSong) {
+                    const currentPosition = await this.getPosition();
+                    if (currentPosition > 3) {
+                        await this.playFile(this.currentSong);
+                        return;
+                    }
+                }
+
                 let currentPos = this.queue.findIndex((s) => s.ID === this.currentSong?.ID);
                 let newPos = currentPos ? currentPos - 1 : 0;
                 let newSong = this.queue[newPos];

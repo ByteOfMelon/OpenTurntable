@@ -87,6 +87,14 @@ export const useSongsStore = defineStore("songs", {
                         this.arrangement.asc = true;
                     }
                     break;
+                case "duration":
+                    if (this.arrangement.key === 'duration') {
+                        await this.ascOrReset();
+                    } else {
+                        this.arrangement.key = 'duration';
+                        this.arrangement.asc = true;
+                    }
+                    break;
                 case "id":
                     this.arrangement.key = 'id';
                     this.arrangement.asc = !this.arrangement.asc;
@@ -112,7 +120,10 @@ export const useSongsStore = defineStore("songs", {
                     this.songs?.sort((a, b) => (this.arrangement.asc ? 1 : -1) * a.Genre.String.localeCompare(b.Genre.String));
                     break;
                 case "year":
-                    this.songs?.sort((a, b) => (this.arrangement.asc ? 1 : -1) * (a.Year > b.Year ? 1 : -1));
+                    this.songs?.sort((a, b) => (this.arrangement.asc ? 1 : -1) * (a.Year.String > b.Year.String ? 1 : -1));
+                    break;
+                case "duration":
+                    this.songs?.sort((a, b) => (this.arrangement.asc ? 1 : -1) * (a.Duration > b.Duration ? 1 : -1));
                     break;
                 case "id":
                     this.songs?.sort((a, b) => (this.arrangement.asc ? 1 : -1) * (a.ID > b.ID ? 1 : -1));
