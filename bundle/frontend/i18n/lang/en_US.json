@@ -1,7 +1,7 @@
 {
     "library": {
-        "add_song": "Add Song",
-        "import_songs": "Import Songs from Folder",
+        "add_song": "Import Song...",
+        "import_songs": "Import Songs from Folder...",
         "no_songs": "You don't currently have any songs in your library. Import some using the buttons above.",
         "importing_songs": "Importing songs...",
         "currently_working": "Currently working on:",
@@ -52,5 +52,9 @@
         "add_songs_title": "Add Songs to Playlist",
         "add_n_songs": "Add {n} Songs",
         "error_name_required": "Please specify a playlist name."
+    },
+    "about": {
+        "about": "About OpenTurntable",
+        "version": "Version {version}"
     }
 }

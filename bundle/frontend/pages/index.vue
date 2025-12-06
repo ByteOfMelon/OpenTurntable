@@ -1,15 +1,6 @@
 <template>
    <div class="flex-1 overflow-hidden">
-        <ImportDialog v-if="songs.importing" :currentlyImporting="state.currentlyImporting" />
         <div class="p-4 h-full flex flex-col gap-4">
-            <div class="flex space-x-2">
-                <button @click="songs.chooseSong" class="px-6 py-3 bg-primary text-white shadow-md font-bold rounded-full cursor-pointer">
-                    <fa icon="square-plus" class="mr-1"></fa> {{ $t("library.add_song") }}
-                </button>
-                <button @click="songs.importSongsFromDirectory" class="px-6 py-3 bg-primary text-white shadow-md font-bold rounded-full cursor-pointer">
-                    <fa icon="folder-plus" class="mr-1"></fa> {{ $t("library.import_songs") }}
-                </button>
-            </div>
             <div class="flex-1 overflow-auto" v-if="!state.isLoading && songs.songs !== null && !songs.importing">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -124,7 +115,6 @@ table th {
     import { EventsOn } from '~/wailsjs/runtime';
     import defaultArtwork from '@/assets/img/default_artwork.png';
     import { PlaybackSourceType } from '~/stores/playback.stores';
-    import ImportDialog from '~/components/ImportDialog.vue';
     import { SecondsToDuration } from '~/utils/format';
 
     const playback = usePlaybackStore();
@@ -132,7 +122,6 @@ table th {
 
     const state = reactive({
         isLoading: true,
-        currentlyImporting: "",
         sortTitle: true,
         importDialog: false
     })
@@ -140,14 +129,6 @@ table th {
     onMounted(async () => {
         await songs.getAllSongs();
         state.isLoading = false;
-
-        EventsOn("toggleImporting", async () => {
-			songs.importing = !songs.importing;
-		});
-        
-        EventsOn("currentImportFileWorking", async (path: string) => {
-			state.currentlyImporting = path;
-		});
         
         EventsOn("playbackComplete", async () => {
 			playback.queueStep(true);

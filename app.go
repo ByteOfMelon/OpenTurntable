@@ -392,10 +392,15 @@ func (a *App) ChooseAndCreateSong() (int64, error) {
 		return -1, err
 	}
 
+	if filePath == "" {
+		return -1, nil
+	}
+
 	runtime.EventsEmit(a.ctx, "toggleImporting")
 
 	song, err := a.CreateSongFromFilePath(filePath)
 	if err != nil {
+		runtime.EventsEmit(a.ctx, "toggleImporting")
 		return -1, err
 	}
 

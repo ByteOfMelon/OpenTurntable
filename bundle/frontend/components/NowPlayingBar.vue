@@ -1,7 +1,7 @@
 <template>
     <div class="flex items-center justify-center w-full shadow-lg space-x-2 p-2 bg-[#252525]">
         <!-- Left hand side (track info) -->
-        <div class="flex w-1/3 max-w-1/3 items-center" v-if="playback.filePath">
+        <div class="flex w-1/3 max-w-1/3 items-center cursor-pointer" v-if="playback.filePath" @click="navigateTo('/nowplaying')">
             <div class="w-[64px] min-w-[64px]">
                 <img class="w-[64px] shadow rounded" draggable="false" :src="playback.metadata?.albumArt ? playback.metadata.albumArt : defaultArtwork" />
             </div>

@@ -1,7 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import tailwindcss from "@tailwindcss/vite";
+import pkg from './package.json';
 
 export default defineNuxtConfig({
+  runtimeConfig: {
+    public: {
+      appVersion: pkg.version
+    }
+  },
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
   css: ['~/assets/css/main.css'],
@@ -40,9 +46,9 @@ export default defineNuxtConfig({
 
   fontawesome: {
     icons: {
-      solid: ["file-audio", "book", "circle-play", "circle-pause", "bars", "volume-xmark", "volume-off", "volume-low", "volume-high", "caret-up", "caret-down", "backward-step", "forward-step", "shuffle", "repeat", "gauge", "square-plus", "folder-plus", "x", "plus", "music", "play", "clock"],
+      solid: ["file-audio", "book", "circle-play", "circle-pause", "bars", "volume-xmark", "volume-off", "volume-low", "volume-high", "caret-up", "caret-down", "backward-step", "forward-step", "shuffle", "repeat", "gauge", "square-plus", "folder-plus", "x", "plus", "music", "play", "clock", "gear", "circle-info"],
       regular: [],
-            brands: []
+      brands: []
     },
     component: 'fa',
   },

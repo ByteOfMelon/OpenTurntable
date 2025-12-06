@@ -1,5 +1,6 @@
 {
   "name": "openturntable",
+  "version": "0.0.1-indev",
   "private": true,
   "type": "module",
   "scripts": {
