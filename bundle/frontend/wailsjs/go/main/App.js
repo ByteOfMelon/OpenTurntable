@@ -18,6 +18,10 @@ export function CreateSongFromFilePath(arg1) {
   return window['go']['main']['App']['CreateSongFromFilePath'](arg1);
 }
 
+export function DeleteSong(arg1) {
+  return window['go']['main']['App']['DeleteSong'](arg1);
+}
+
 export function GetDuration() {
   return window['go']['main']['App']['GetDuration']();
 }
@@ -88,4 +92,8 @@ export function SetVolume(arg1) {
 
 export function StopPlayback() {
   return window['go']['main']['App']['StopPlayback']();
+}
+
+export function UpdateSongMetadata(arg1, arg2, arg3, arg4, arg5, arg6) {
+  return window['go']['main']['App']['UpdateSongMetadata'](arg1, arg2, arg3, arg4, arg5, arg6);
 }

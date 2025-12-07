@@ -408,3 +408,67 @@ func (a *App) ChooseAndCreateSong() (int64, error) {
 
 	return song, nil
 }
+
+// UpdateSongMetadata updates the metadata of a song
+func (a *App) UpdateSongMetadata(songID int64, title string, artistName string, albumName string, genre string, year string) error {
+	// 1. Handle Artist
+	var artistID int64
+	if artistName != "" {
+		artist, err := a.db.GetArtistByName(artistName)
+		if err != nil {
+			// Create artist
+			newArtist := database.Artist{Name: artistName}
+			artistID, err = a.db.CreateArtist(newArtist)
+			if err != nil {
+				return err
+			}
+		} else {
+			artistID = artist.ID
+		}
+	}
+
+	// 2. Handle Album
+	var albumID int64
+	if albumName != "" {
+		album, err := a.db.GetAlbumByNameAndArtistId(albumName, artistID)
+		if err != nil {
+			// Create album
+			newAlbum := database.Album{Name: albumName, Artist_ID: artistID}
+			albumID, err = a.db.CreateAlbum(newAlbum)
+			if err != nil {
+				return err
+			}
+		} else {
+			albumID = album.ID
+		}
+	}
+
+	// 3. Get existing song to preserve other fields
+	song, err := a.db.GetSongById(songID)
+	if err != nil {
+		return err
+	}
+
+	song.Title = title
+	song.Genre = sql.NullString{String: genre, Valid: genre != ""}
+	song.Year = sql.NullString{String: year, Valid: year != ""}
+
+	if artistID != 0 {
+		song.Artist_ID = sql.NullInt64{Int64: artistID, Valid: true}
+	} else {
+		song.Artist_ID = sql.NullInt64{Valid: false}
+	}
+
+	if albumID != 0 {
+		song.Album_ID = sql.NullInt64{Int64: albumID, Valid: true}
+	} else {
+		song.Album_ID = sql.NullInt64{Valid: false}
+	}
+
+	return a.db.UpdateSong(song)
+}
+
+// DeleteSong deletes a song from the library
+func (a *App) DeleteSong(songID int64) error {
+	return a.db.DeleteSong(songID)
+}

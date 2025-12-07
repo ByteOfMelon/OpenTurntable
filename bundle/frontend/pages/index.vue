@@ -50,7 +50,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="song in songs.songs" :key="song.ID" class="group hover:bg-secondary rounded-md">
+                        <tr v-for="song in songs.songs" :key="song.ID" class="group hover:bg-secondary rounded-md" @contextmenu.prevent="showContextMenu($event, song)">
                             <td class="py-3 pl-2 text-gray-400 group-hover:text-white play-btn">
                                 <span class="id-label">{{ song.ID }}</span>
                                 <div class="play-button-icon">
@@ -82,6 +82,34 @@
             </div>
         </div>
     </div>
+
+    <Teleport to="body">
+        <div v-if="state.contextMenu.visible" 
+             :style="{ top: `${state.contextMenu.y}px`, left: `${state.contextMenu.x}px` }"
+             class="fixed bg-[#252525] shadow-lg rounded-md py-1 z-[9999] min-w-[160px] border border-gray-700"
+             @click.stop>
+            <div class="px-4 py-2 hover:bg-[#353535] cursor-pointer text-sm text-white flex items-center" @click="state.showEditMetadataDialog = true; closeContextMenu()">
+                <fa icon="pen-to-square" class="mr-2 w-4"></fa> Edit Metadata...
+            </div>
+            <div class="px-4 py-2 hover:bg-[#353535] cursor-pointer text-sm text-white flex items-center" @click="state.showDeleteSongDialog = true; closeContextMenu()">
+                <fa icon="trash" class="mr-2 w-4"></fa> Delete Song...
+            </div>
+        </div>
+    </Teleport>
+
+    <EditMetadataDialog 
+        v-if="state.showEditMetadataDialog && state.contextMenu.song" 
+        :song="state.contextMenu.song" 
+        @close="state.showEditMetadataDialog = false"
+        @saved="songs.getAllSongs()"
+    />
+
+    <DeleteSongDialog 
+        v-if="state.showDeleteSongDialog && state.contextMenu.song" 
+        :song="state.contextMenu.song" 
+        @close="state.showDeleteSongDialog = false"
+        @deleted="songs.getAllSongs()"
+    />
 </template>
 
 <style lang="css" scoped>
@@ -123,7 +151,15 @@ table th {
     const state = reactive({
         isLoading: true,
         sortTitle: true,
-        importDialog: false
+        importDialog: false,
+        showEditMetadataDialog: false,
+        showDeleteSongDialog: false,
+        contextMenu: {
+            visible: false,
+            x: 0,
+            y: 0,
+            song: null as database.SongWithDetails | null
+        }
     })
 
     onMounted(async () => {
@@ -133,7 +169,24 @@ table th {
         EventsOn("playbackComplete", async () => {
 			playback.queueStep(true);
 		});
+
+        window.addEventListener('click', closeContextMenu);
     });
+
+    onUnmounted(() => {
+        window.removeEventListener('click', closeContextMenu);
+    });
+
+    const showContextMenu = (e: MouseEvent, song: database.SongWithDetails) => {
+        state.contextMenu.visible = true;
+        state.contextMenu.x = e.clientX;
+        state.contextMenu.y = e.clientY;
+        state.contextMenu.song = song;
+    }
+
+    const closeContextMenu = () => {
+        state.contextMenu.visible = false;
+    }
 
     const rearrangeSongs = async (by: string) => {
         let arrangement = await songs.rearrangeSongs(by);

@@ -228,6 +228,18 @@ func (db *DB) CreateSong(song Song) (int64, error) {
 	return result.LastInsertId()
 }
 
+// Updates an existing song in the database
+func (db *DB) UpdateSong(song Song) error {
+	_, err := db.conn.Exec(
+		"UPDATE songs SET title = ?, artist_id = ?, album_id = ?, composer = ?, comment = ?, genre = ?, year = ? WHERE id = ?",
+		song.Title, song.Artist_ID, song.Album_ID, song.Composer, song.Comment, song.Genre, song.Year, song.ID,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to update song: %w", err)
+	}
+	return nil
+}
+
 // Inserts a new artist into the database
 func (db *DB) CreateArtist(artist Artist) (int64, error) {
 	result, err := db.conn.Exec(

@@ -10,6 +10,8 @@ export function CreatePlaylist(arg1:database.Playlist):Promise<number>;
 
 export function CreateSongFromFilePath(arg1:string):Promise<number>;
 
+export function DeleteSong(arg1:number):Promise<void>;
+
 export function GetDuration():Promise<number>;
 
 export function GetFilePath():Promise<string>;
@@ -45,3 +47,5 @@ export function SetSpeed(arg1:number):Promise<void>;
 export function SetVolume(arg1:number):Promise<void>;
 
 export function StopPlayback():Promise<void>;
+
+export function UpdateSongMetadata(arg1:number,arg2:string,arg3:string,arg4:string,arg5:string,arg6:string):Promise<void>;
